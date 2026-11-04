@@ -50,6 +50,7 @@ function render(){
   $("category").textContent=game.category || "In attesa";
   $("clue").textContent=game.clue || "";
   $("prizeResult").textContent=game.prizeResult || "";
+  if(game.phase==="choose_category") drawCategoryWheel();
   $("categorySpin").disabled=busy || game.phase!=="choose_category";
   $("prizeSpin").disabled=busy || game.phase!=="choose_prize";
 }
