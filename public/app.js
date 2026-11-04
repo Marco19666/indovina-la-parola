@@ -40,12 +40,14 @@ function renderKeyboard(){
   [...chars].forEach(ch=>{const b=document.createElement("button");b.textContent=ch;b.disabled=game?.finished; b.onclick=()=>buy(ch);$("keyboard").append(b)});
 }
 async function run(fn){if(busy)return;busy=true;try{await fn()}catch(e){say(e.message)}finally{busy=false;render()}}
+let lastQuestionRequestAt=0;
+async function runQuestion(fn){if(busy)return;const wait=5000-(Date.now()-lastQuestionRequestAt);if(wait>0){say("Attendi "+Math.ceil(wait/1000)+" secondi prima di una nuova richiesta.");return}lastQuestionRequestAt=Date.now();return run(fn)}
 async function buy(letter){return run(async()=>{const data=await api("buy",{letter});game=data.game;say(data.message)})}
-$("newGame").onclick=()=>run(async()=>{game={gameId:crypto.randomUUID()};const data=await api("new");game=data.game;say("Nuova partita iniziata!")});
-$("categorySpin").onclick=()=>run(async()=>{const data=await api("category");game=data.game;say(data.message)});
-$("prizeSpin").onclick=()=>run(async()=>{const data=await api("prize");game=data.game;say(data.message)});
+$("newGame").onclick=()=>runQuestion(async()=>{game={gameId:crypto.randomUUID()};const data=await api("new");game=data.game;say("Nuova partita iniziata!")});
+$("categorySpin").onclick=()=>runQuestion(async()=>{const data=await api("category");game=data.game;say(data.message)});
+$("prizeSpin").onclick=()=>runQuestion(async()=>{const data=await api("prize");game=data.game;say(data.message)});
 $("buyConsonant").onclick=()=>{const c=[...$("keyboard").querySelectorAll("button")].find(b=>!vowels.includes(b.textContent));if(c)buy(c.textContent)};
 $("buyVowel").onclick=()=>{const c=[...$("keyboard").querySelectorAll("button")].find(b=>vowels.includes(b.textContent));if(c)buy(c.textContent)};
-$("guessForm").onsubmit=e=>{e.preventDefault();run(async()=>{const data=await api("guess",{answer:$("guess").value});game=data.game;$("guess").value="";say(data.message);if(game.finished&&game.status==="won"){setTimeout(()=>run(async()=>{const next=await api("next");game=next.game;say("Round successivo!")}),1200)}})};
+$("guessForm").onsubmit=e=>{e.preventDefault();run(async()=>{const data=await api("guess",{answer:$("guess").value});game=data.game;$("guess").value="";say(data.message);if(game.finished&&game.status==="won"){setTimeout(()=>runQuestion(async()=>{const next=await api("next");game=next.game;say("Round successivo!")}),1200)}})};
 $("language").onchange=()=>{if(game)run(async()=>{const data=await api("language");game=data.game;render()});else renderKeyboard()};
 renderKeyboard();
