@@ -1,0 +1,15 @@
+name = "indovina-la-parola-api"
+main = "worker.js"
+compatibility_date = "2026-11-04"
+
+[[durable_objects.bindings]]
+name = "GAME_SESSIONS"
+class_name = "GameSession"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["GameSession"]
+
+[vars]
+GEMINI_MODEL = "gemini-2.5-flash"
+# Configura ALLOWED_ORIGIN come secret con l'URL esatto del sito Cloudflare Pages.
