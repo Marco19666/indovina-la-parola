@@ -36,7 +36,6 @@ function spinAnimation(button){
 }
 function render(){
   const started=!!game;
-  $("newGame").hidden=started;
   $("stats").hidden=!started;
   $("categoryStage").hidden=!started || game.phase!=="choose_category";
   $("questionStage").hidden=!started || !["choose_prize","playing","finished"].includes(game.phase);
@@ -84,8 +83,7 @@ render();
   }catch(error){if(game && !game.phase)game=null;say(error.message)}
   finally{busy=false;render()}
 }
-$("newGame").onclick=()=>run(()=>{game={gameId:crypto.randomUUID()};return api("new")},$("newGame"));
 $("categorySpin").onclick=runCategory;
 $("prizeSpin").onclick=()=>run(()=>api("prize"),$("prizeSpin"));
 $("language").onchange=()=>{if(game)run(()=>api("language"));};
-render();
+run(()=>{game={gameId:crypto.randomUUID()};return api("new")});
