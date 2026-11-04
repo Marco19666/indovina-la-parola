@@ -24,7 +24,7 @@ function drawCategoryWheel(){
   categories.forEach((name,i)=>{
     const start=-Math.PI/2-step/2+i*step,end=start+step;
     ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,end);ctx.closePath();ctx.fillStyle=colors[i];ctx.fill();ctx.lineWidth=5;ctx.strokeStyle="#f6d77c";ctx.stroke();
-    const mid=start+step/2;ctx.save();ctx.translate(cx+Math.cos(mid)*190,cy+Math.sin(mid)*190);ctx.rotate(mid+Math.PI/2);ctx.fillStyle="#fff";ctx.font="bold 25px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";ctx.shadowColor="#000";ctx.shadowBlur=4;ctx.fillText(name,0,0);ctx.restore();
+    const mid=start+step/2;ctx.save();ctx.translate(cx+Math.cos(mid)*190,cy+Math.sin(mid)*190);ctx.rotate(Math.PI/2);ctx.fillStyle="#fff";ctx.font="bold 25px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";ctx.shadowColor="#000";ctx.shadowBlur=4;ctx.fillText(name,0,0);ctx.restore();
   });
   ctx.beginPath();ctx.arc(cx,cy,55,0,Math.PI*2);ctx.fillStyle="#10182b";ctx.fill();ctx.lineWidth=8;ctx.strokeStyle="#f6c85f";ctx.stroke();ctx.fillStyle="#f6c85f";ctx.font="bold 25px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("GIRA",cx,cy);
 }
@@ -37,7 +37,7 @@ function spinAnimation(button){
 function render(){
   const started=!!game;
   $("stats").hidden=!started;
-  $("categoryStage").hidden=started && game.phase!=="choose_category";
+  $("categoryStage").hidden=!!(game && ["choose_prize","playing","finished"].includes(game.phase));
   $("questionStage").hidden=!started || !["choose_prize","playing","finished"].includes(game.phase);
   $("prizeStage").hidden=!started || game.phase!=="choose_prize";
   $("resultStage").hidden=!started || !["playing","finished"].includes(game.phase);
