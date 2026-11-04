@@ -19,32 +19,39 @@
         </select>
       </label>
     </header>
-    <section class="stats">
+    <button id="newGame" class="primary start-button">Inizia partita</button>
+    <section id="stats" class="stats" hidden>
       <div class="stat"><span>Round</span><strong id="round">1</strong></div>
       <div class="stat"><span>Consonanti</span><strong id="consonants">10</strong></div>
       <div class="stat"><span>Vocali</span><strong id="vowels">3</strong></div>
       <div class="stat"><span>Difficoltà</span><strong id="difficulty">Facile</strong></div>
     </section>
-    <section class="panel">
-      <div class="section-head"><div><p class="eyebrow">CATEGORIA</p><h2 id="category">Premi “Nuova partita”</h2></div><button id="newGame" class="primary">Nuova partita</button></div>
-      <p id="clue" class="clue">La domanda apparirà qui.</p>
-      <div id="board" class="board" aria-label="Caselle della soluzione"></div>
-      <p id="message" class="message" aria-live="polite">Pronto a giocare?</p>
+    <section id="categoryStage" class="panel stage" hidden>
+      <p class="eyebrow">FASE 1</p>
+      <h2>Ruota delle materie</h2>
+      <p>Gira la ruota per estrarre la categoria della domanda.</p>
+      <div class="wheel-art category-art"><span>?</span></div>
+      <button id="categorySpin" class="wheel">Gira la ruota delle materie</button>
     </section>
-    <section class="panel controls">
-      <div class="wheels">
-        <div><h3>Ruota categorie</h3><button id="categorySpin" class="wheel">Gira categoria</button></div>
-        <div><h3>Ruota fortuna</h3><button id="prizeSpin" class="wheel">Gira premi</button></div>
-      </div>
-      <div class="actions">
-        <button id="buyConsonant">Compra consonante (1)</button>
-        <button id="buyVowel">Compra vocale (1)</button>
-      </div>
-      <h3>La tua risposta</h3>
-      <div id="keyboard" class="keyboard"></div>
-      <form id="guessForm" class="guess"><input id="guess" autocomplete="off" placeholder="Scrivi la soluzione…" required><button class="primary">Conferma</button></form>
+    <section id="questionStage" class="panel stage" hidden>
+      <p class="eyebrow">DOMANDA ESTRATTA</p>
+      <h2 id="category">Categoria</h2>
+      <p id="clue" class="clue"></p>
     </section>
-    <footer>Le risposte sono verificate dal server. Ricarica gettoni ogni 2 ore.</footer>
+    <section id="prizeStage" class="panel stage" hidden>
+      <p class="eyebrow">FASE 2</p>
+      <h2>Ruota premi e penalità</h2>
+      <p>La domanda è pronta. Gira la seconda ruota per scoprire il tuo premio o handicap.</p>
+      <div class="wheel-art prize-art"><span>★</span></div>
+      <button id="prizeSpin" class="wheel">Gira la ruota dei premi</button>
+    </section>
+    <section id="resultStage" class="panel stage" hidden>
+      <p class="eyebrow">RISULTATO DELLA RUOTA</p>
+      <h2 id="prizeResult"></h2>
+      <p id="message" class="message" aria-live="polite"></p>
+    </section>
+    <p id="message" class="message" aria-live="polite">Pronto a giocare?</p>
+    <footer>Le domande sono generate dall'intelligenza artificiale.</footer>
   </main>
   <script src="app.js"></script>
 </body>
