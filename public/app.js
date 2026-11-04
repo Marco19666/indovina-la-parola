@@ -37,7 +37,7 @@ function spinAnimation(button){
 function render(){
   const started=!!game;
   $("stats").hidden=!started;
-  $("categoryStage").hidden=!started || game.phase!=="choose_category";
+  $("categoryStage").hidden=started && game.phase!=="choose_category";
   $("questionStage").hidden=!started || !["choose_prize","playing","finished"].includes(game.phase);
   $("prizeStage").hidden=!started || game.phase!=="choose_prize";
   $("resultStage").hidden=!started || !["playing","finished"].includes(game.phase);
@@ -49,7 +49,7 @@ function render(){
   $("category").textContent=game.category || "In attesa";
   $("clue").textContent=game.clue || "";
   $("prizeResult").textContent=game.prizeResult || "";
-  if(game.phase==="choose_category") drawCategoryWheel();
+  if(!started || game.phase==="choose_category") drawCategoryWheel();
   $("categorySpin").disabled=busy || game.phase!=="choose_category";
   $("prizeSpin").disabled=busy || game.phase!=="choose_prize";
 }
@@ -86,4 +86,5 @@ render();
 $("categorySpin").onclick=runCategory;
 $("prizeSpin").onclick=()=>run(()=>api("prize"),$("prizeSpin"));
 $("language").onchange=()=>{if(game)run(()=>api("language"));};
+drawCategoryWheel();
 run(()=>{game={gameId:crypto.randomUUID()};return api("new")});
