@@ -58,15 +58,23 @@ async function runCategory(){
   busy=true;$("categorySpin").disabled=true;
   say("La ruota gira...");
   const wheel=$("categoryWheel");
-  let spin;
   try{
     const startRotation=wheelRotation;
     const endRotation=startRotation+360*7+Math.random()*360;
-    spin=wheel.animate(
+    const spin=wheel.animate(
       [{transform:"rotate("+startRotation+"deg)"},{transform:"rotate("+endRotation+"deg)"}],
       {duration:4300,easing:"cubic-bezier(.12,.72,.12,1)",fill:"forwards"}
     );
-    const data=await api("category");
+    let data;
+    try{
+      data=await api("category");
+    }catch(error){
+      await spin.finished.catch(()=>{});
+      wheelRotation=endRotation;
+      wheel.style.transform="rotate("+wheelRotation+"deg)";
+      spin.cancel();
+      throw error;
+    }
     await spin.finished;
     wheelRotation=endRotation;
     wheel.style.transform="rotate("+wheelRotation+"deg)";
@@ -74,8 +82,7 @@ async function runCategory(){
     game=data.game;
     say("Materia estratta: "+game.category+".");
   }catch(error){
-    if(spin)spin.cancel();
-    say(error.message);
+    say(error.message || "Errore durante il giro della ruota.");
   }finally{
     busy=false;
     render();
