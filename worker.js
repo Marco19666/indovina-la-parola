@@ -1,6 +1,9 @@
 const CATEGORIES = ["Letteratura","Geografia","Storia","Scienza","Sport","Cinema","Musica","Arte","Natura","Tecnologia"];
 const PRIZES = ["-1 consonante","-1 vocale","+1 consonante","+1 vocale","+3 consonanti","Cambia domanda","Vinci il round","Perdi il round"];
 const LANG = {it:"italiano",en:"English",fr:"français",es:"español",de:"Deutsch",pt:"português"};
+const MODEL = "gemini-3.5-flash-lite";
+const REQUEST_TIMEOUT_MS = 20000;
+const QUIZ_SYSTEM_INSTRUCTION = "Sei il generatore di domande del gioco Indovina la Parola. Crea quiz originali, chiari e con una soluzione univoca. Rispetta lingua, categoria e difficoltà richieste. La risposta deve essere una parola o una breve espressione. Restituisci esclusivamente JSON valido con le chiavi clue e answer, senza markdown né testo aggiuntivo.";
 const VOWELS = "AEIOU";
 const cors = (origin) => ({ "access-control-allow-origin": origin, "access-control-allow-methods":"GET,POST,OPTIONS", "access-control-allow-headers":"content-type", "vary":"Origin" });
 function difficulty(n){return n<=3?"facile":n<=6?"media":n<=10?"difficile":n<=15?"molto difficile":"esperto"}
@@ -13,15 +16,40 @@ export class GameSession {
   async save(s){await this.ctx.storage.put("state",s)}
   async recharge(s){const now=Date.now(),period=7200000,steps=Math.floor((now-s.lastRecharge)/period);if(steps>0){s.consonants+=steps*3;s.vowels+=steps;s.lastRecharge+=steps*period}}
   async question(s,language){
-    if(!this.env.GEMINI_API_KEY)throw new Error("Chiave Gemini non configurata sul Worker");
-    const model=this.env.GEMINI_MODEL||"gemini-3.5-flash-lite";
-    const prompt="Crea una domanda quiz originale in "+(LANG[language]||"italiano")+". Categoria: "+s.category+". Difficoltà: "+difficulty(s.round)+". Rispondi SOLO JSON valido con chiavi clue e answer. La risposta deve essere una parola o breve espressione, senza spiegazioni. La domanda deve avere una soluzione univoca.";
-    const url="https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent?key="+encodeURIComponent(this.env.GEMINI_API_KEY);
-    const r=await fetch(url,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:"application/json",temperature:.8}}),signal:AbortSignal.timeout(60000)});
-    if(!r.ok){const detail=(await r.text()).slice(0,2000);if(r.status===429)console.error("GEMINI_429_DETAILS",JSON.stringify({model,status:r.status,detail}));throw new Error("Gemini non disponibile ("+r.status+"): "+detail)}
-    const j=await r.json(),raw=j.candidates?.[0]?.content?.parts?.[0]?.text;
-    const q=JSON.parse(raw||"{}");if(!q.answer||!q.clue)throw new Error("Risposta AI non valida");
-    s.answer=String(q.answer).toLocaleUpperCase();s.clue=String(q.clue);s.revealed=[];s.finished=false;s.status="playing";
+    if(!this.env.GEMINI_API_KEY)throw Object.assign(new Error("Configurazione API mancante."),{status:500});
+    const prompt="Lingua della domanda e dell'indizio: "+(LANG[language]||"italiano")+". Categoria: "+s.category+". Difficoltà: "+difficulty(s.round)+". Crea una domanda quiz originale, non ambigua, la cui risposta sia una parola o una breve espressione. Restituisci esclusivamente JSON valido con le chiavi clue e answer.";
+    const endpoint="https://generativelanguage.googleapis.com/v1beta/models/"+MODEL+":generateContent?key="+this.env.GEMINI_API_KEY;
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),REQUEST_TIMEOUT_MS);
+    let response;
+    try{
+      response=await fetch(endpoint,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          system_instruction:{parts:[{text:QUIZ_SYSTEM_INSTRUCTION}]},
+          contents:[{role:"user",parts:[{text:prompt}]}],
+          generationConfig:{responseMimeType:"application/json",temperature:.7,maxOutputTokens:300}
+        }),
+        signal:controller.signal
+      });
+    }catch(error){
+      const timedOut=error?.name==="AbortError";
+      throw Object.assign(new Error(timedOut?"La risposta sta impiegando troppo tempo.":"Errore di comunicazione con il servizio AI."),{status:timedOut?504:502});
+    }finally{
+      clearTimeout(timeout);
+    }
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok){
+      const detail=result.error?.message||"Errore Gemini ("+response.status+").";
+      if(response.status===429)console.error("GEMINI_429_DETAILS",JSON.stringify({model:MODEL,status:response.status,detail}));
+      throw Object.assign(new Error("Il servizio AI non è al momento disponibile. "+detail),{status:response.status>=500?503:response.status});
+    }
+    const raw=result.candidates?.[0]?.content?.parts?.map(part=>part.text||"").join("\n").trim();
+    let q;
+    try{q=JSON.parse(raw||"{}")}catch{throw Object.assign(new Error("Gemini ha restituito una risposta JSON non valida."),{status:502})}
+    if(typeof q.answer!=="string"||!q.answer.trim()||typeof q.clue!=="string"||!q.clue.trim())throw Object.assign(new Error("Risposta AI non valida."),{status:502});
+    s.answer=q.answer.trim().toLocaleUpperCase();s.clue=q.clue.trim();s.revealed=[];s.finished=false;s.status="playing";
   }
   async fetch(req){
     const url=new URL(req.url);if(req.method==="OPTIONS")return new Response(null,{headers:cors(this.env.ALLOWED_ORIGIN||"*")});
@@ -67,7 +95,7 @@ export class GameSession {
         s.round++;s.category=CATEGORIES[Math.floor(Math.random()*CATEGORIES.length)];await this.question(s,lang);await this.save(s);return this.out({game:publicGame(s),message:"Nuovo round"});
       }
       throw new Error("Azione sconosciuta");
-    }catch(e){return this.out({error:e.message},400)}
+    }catch(e){return this.out({error:e.message},e.status||400)}
   }
   out(data,status=200){return Response.json(data,{status,headers:cors(this.env.ALLOWED_ORIGIN||"*")})}
 }
