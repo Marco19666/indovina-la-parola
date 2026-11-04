@@ -55,17 +55,25 @@ function render(){
 }
 async function runCategory(){
   if(busy)return;
-  busy=true;$("categorySpin").disabled=true;say("La ruota gira...");
+  busy=true;$("categorySpin").disabled=true;say("La ruota gira: sto estraendo la materia...");
+  const wheel=$("categoryWheel");
   try{
-    const data=await api("category");
-    const index=categories.indexOf(data.game.category);
-    const wheel=$("categoryWheel");
-    wheel.style.transition="none";wheel.style.transform="rotate("+wheelRotation+"deg)";
+    wheel.style.transition="none";
+    wheel.style.transform="rotate("+wheelRotation+"deg)";
     void wheel.offsetWidth;
-    wheelRotation+=360*5+(index<0?0:-index*36);
+    wheelRotation+=360*5;
     wheel.style.transition="transform 4.2s cubic-bezier(.12,.72,.12,1)";
     wheel.style.transform="rotate("+wheelRotation+"deg)";
+    const request=api("category");
+    const data=await request;
     await wait(4300);
+    const index=categories.indexOf(data.game.category);
+    if(index>=0){
+      wheelRotation+=((360-(wheelRotation+index*36)%360)%360);
+      wheel.style.transition="transform .65s ease-out";
+      wheel.style.transform="rotate("+wheelRotation+"deg)";
+      await wait(700);
+    }
     game=data.game;say(data.message||"Materia estratta!");
   }catch(error){say(error.message)}
   finally{busy=false;render()}
