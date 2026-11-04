@@ -54,29 +54,32 @@ function render(){
   $("prizeSpin").disabled=true;
 }
 async function runCategory(){
-  if(busy)return;
-  busy=true;$("categorySpin").disabled=true;say("La ruota gira: sto estraendo la materia...");
+  if(busy || !game || game.phase!=="choose_category")return;
+  busy=true;$("categorySpin").disabled=true;
+  say("La ruota gira...");
   const wheel=$("categoryWheel");
+  let spin;
   try{
-    wheel.style.transition="none";
+    const startRotation=wheelRotation;
+    const endRotation=startRotation+360*7+Math.random()*360;
+    spin=wheel.animate(
+      [{transform:"rotate("+startRotation+"deg)"},{transform:"rotate("+endRotation+"deg)"}],
+      {duration:4300,easing:"cubic-bezier(.12,.72,.12,1)",fill:"forwards"}
+    );
+    const data=await api("category");
+    await spin.finished;
+    wheelRotation=endRotation;
     wheel.style.transform="rotate("+wheelRotation+"deg)";
-    void wheel.offsetWidth;
-    wheelRotation+=360*5;
-    wheel.style.transition="transform 4.2s cubic-bezier(.12,.72,.12,1)";
-    wheel.style.transform="rotate("+wheelRotation+"deg)";
-    const request=api("category");
-    const data=await request;
-    await wait(4300);
-    const index=categories.indexOf(data.game.category);
-    if(index>=0){
-      wheelRotation+=((360-(wheelRotation+index*36)%360)%360);
-      wheel.style.transition="transform .65s ease-out";
-      wheel.style.transform="rotate("+wheelRotation+"deg)";
-      await wait(700);
-    }
-    game=data.game;say(data.message||"Materia estratta!");
-  }catch(error){say(error.message)}
-  finally{busy=false;render()}
+    spin.cancel();
+    game=data.game;
+    say("Materia estratta: "+game.category+".");
+  }catch(error){
+    if(spin)spin.cancel();
+    say(error.message);
+  }finally{
+    busy=false;
+    render();
+  }
 }
 async function run(action,button){
   if(busy)return;
