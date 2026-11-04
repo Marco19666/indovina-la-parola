@@ -46,8 +46,8 @@ export class GameSession{
    if(action==="category"){
     if(s.phase!=="choose_category")throw new Error("La ruota delle materie è già stata girata.");
     s.category=CATEGORIES[Math.floor(Math.random()*CATEGORIES.length)];
-    await this.question(s,lang);s.phase="choose_prize";s.prizeResult="";
-    await this.save(s);return this.out({game:publicGame(s),message:"Materia estratta: "+s.category+". La domanda è pronta. Ora gira la ruota dei premi."});
+    s.clue="";s.answer="";s.revealed=[];s.phase="category_selected";s.prizeResult="";
+    await this.save(s);return this.out({game:publicGame(s),message:"Materia estratta: "+s.category+". In attesa dell’ordine di generare la domanda."});
    }
    if(action==="prize"){
     if(s.phase!=="choose_prize")throw new Error("Prima devi estrarre una materia e generare la domanda.");
