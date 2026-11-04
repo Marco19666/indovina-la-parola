@@ -72,11 +72,11 @@ export class GameSession {
   out(data,status=200){return Response.json(data,{status,headers:cors(this.env.ALLOWED_ORIGIN||"*")})}
 }
 export default {async fetch(request,env){
+  const url=new URL(request.url);
   const origin=request.headers.get("Origin")||"";
   const allowed=env.ALLOWED_ORIGIN||"*";
-  if(allowed!=="*"&&origin!==allowed)return new Response("Origin non autorizzata",{status:403});
-  const url=new URL(request.url);
-  if(!url.pathname.startsWith("/api/"))return new Response("Indovina la Parola API",{headers:{"content-type":"text/plain"}});
+  if(allowed!=="*"&&origin!==allowed&&origin!==url.origin)return new Response("Origin non autorizzata",{status:403});
+  if(!url.pathname.startsWith("/api/"))return env.ASSETS.fetch(request);
   const body=request.method==="POST"?await request.clone().json().catch(()=>({})): {};
   const id=env.GAME_SESSIONS.idFromName(String(body.gameId||"default"));
   return env.GAME_SESSIONS.get(id).fetch(request);
