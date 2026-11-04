@@ -1,5 +1,5 @@
 // Imposta qui l'URL del Worker pubblicato, senza slash finale.
-const API_BASE = "";
+const API_BASE = "https://indovina-la-parola-pages.chiccovision.workers.dev";
 const $ = (id) => document.getElementById(id);
 let game = null;
 let busy = false;
