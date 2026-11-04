@@ -55,30 +55,25 @@ function render(){
 }
 async function runCategory(){
   if(busy || !game || game.phase!=="choose_category")return;
-  busy=true;$("categorySpin").disabled=true;
+  busy=true;
+  $("categorySpin").disabled=true;
   say("La ruota gira...");
   const wheel=$("categoryWheel");
+  const selectedIndex=Math.floor(Math.random()*categories.length);
+  const selectedCategory=categories[selectedIndex];
+  const startRotation=wheelRotation;
+  const targetOffset=(360-selectedIndex*36)%360;
+  const extraRotation=(targetOffset-(startRotation%360)+360)%360;
+  const endRotation=startRotation+360*7+extraRotation;
   try{
-    const startRotation=wheelRotation;
-    const endRotation=startRotation+360*7+Math.random()*360;
-    const spin=wheel.animate(
-      [{transform:"rotate("+startRotation+"deg)"},{transform:"rotate("+endRotation+"deg)"}],
-      {duration:4300,easing:"cubic-bezier(.12,.72,.12,1)",fill:"forwards"}
-    );
-    let data;
-    try{
-      data=await api("category");
-    }catch(error){
-      await spin.finished.catch(()=>{});
-      wheelRotation=endRotation;
-      wheel.style.transform="rotate("+wheelRotation+"deg)";
-      spin.cancel();
-      throw error;
-    }
-    await spin.finished;
+    wheel.style.transition="none";
+    wheel.style.transform="rotate("+startRotation+"deg)";
+    wheel.getBoundingClientRect();
+    wheel.style.transition="transform 4300ms cubic-bezier(.12,.72,.12,1)";
+    wheel.style.transform="rotate("+endRotation+"deg)";
+    await wait(4400);
     wheelRotation=endRotation;
-    wheel.style.transform="rotate("+wheelRotation+"deg)";
-    spin.cancel();
+    const data=await api("category",{category:selectedCategory});
     game=data.game;
     say("Materia estratta: "+game.category+".");
   }catch(error){
