@@ -38,7 +38,7 @@ export class GameSession{
    let s=await this.state();
    if(action==="new"){
     s={gameId:b.gameId||crypto.randomUUID(),round:1,consonants:10,vowels:3,lastRecharge:Date.now(),category:"",answer:"",clue:"",revealed:[],finished:false,status:"playing",phase:"choose_category",prizeResult:""};
-    await this.save(s);return this.out({game:publicGame(s),message:"Partita iniziata. Gira la ruota delle materie."});
+    await this.save(s);return this.out({game:publicGame(s)});
    }
    if(!s)throw new Error("Inizia una nuova partita");
    await this.recharge(s);
