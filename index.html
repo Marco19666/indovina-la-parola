@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10172a">
+  <title>Indovina la Parola</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <div><p class="eyebrow">GIOCO A ROUND</p><h1>Indovina la Parola</h1></div>
+      <label class="language">Lingua
+        <select id="language">
+          <option value="it">Italiano</option><option value="en">English</option>
+          <option value="fr">Français</option><option value="es">Español</option>
+          <option value="de">Deutsch</option><option value="pt">Português</option>
+        </select>
+      </label>
+    </header>
+    <section class="stats">
+      <div class="stat"><span>Round</span><strong id="round">1</strong></div>
+      <div class="stat"><span>Consonanti</span><strong id="consonants">10</strong></div>
+      <div class="stat"><span>Vocali</span><strong id="vowels">3</strong></div>
+      <div class="stat"><span>Difficoltà</span><strong id="difficulty">Facile</strong></div>
+    </section>
+    <section class="panel">
+      <div class="section-head"><div><p class="eyebrow">CATEGORIA</p><h2 id="category">Premi “Nuova partita”</h2></div><button id="newGame" class="primary">Nuova partita</button></div>
+      <p id="clue" class="clue">La domanda apparirà qui.</p>
+      <div id="board" class="board" aria-label="Caselle della soluzione"></div>
+      <p id="message" class="message" aria-live="polite">Pronto a giocare?</p>
+    </section>
+    <section class="panel controls">
+      <div class="wheels">
+        <div><h3>Ruota categorie</h3><button id="categorySpin" class="wheel">Gira categoria</button></div>
+        <div><h3>Ruota fortuna</h3><button id="prizeSpin" class="wheel">Gira premi</button></div>
+      </div>
+      <div class="actions">
+        <button id="buyConsonant">Compra consonante (1)</button>
+        <button id="buyVowel">Compra vocale (1)</button>
+      </div>
+      <h3>La tua risposta</h3>
+      <div id="keyboard" class="keyboard"></div>
+      <form id="guessForm" class="guess"><input id="guess" autocomplete="off" placeholder="Scrivi la soluzione…" required><button class="primary">Conferma</button></form>
+    </section>
+    <footer>Le risposte sono verificate dal server. Ricarica gettoni ogni 2 ore.</footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
