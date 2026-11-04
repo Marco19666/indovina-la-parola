@@ -59,13 +59,14 @@ async function runCategory(){
   $("categorySpin").disabled=true;
   say("La ruota gira...");
   const wheel=$("categoryWheel");
-  const selectedIndex=Math.floor(Math.random()*categories.length);
-  const selectedCategory=categories[selectedIndex];
-  const startRotation=wheelRotation;
-  const targetOffset=(360-selectedIndex*36)%360;
-  const extraRotation=(targetOffset-(startRotation%360)+360)%360;
-  const endRotation=startRotation+360*7+extraRotation;
   try{
+    const data=await api("category");
+    const selectedIndex=categories.indexOf(data.game.category);
+    if(selectedIndex<0)throw new Error("La categoria ricevuta non è valida.");
+    const startRotation=wheelRotation;
+    const targetOffset=(360-selectedIndex*36)%360;
+    const extraRotation=(targetOffset-(startRotation%360)+360)%360;
+    const endRotation=startRotation+360*7+extraRotation;
     wheel.style.transition="none";
     wheel.style.transform="rotate("+startRotation+"deg)";
     wheel.getBoundingClientRect();
@@ -73,7 +74,6 @@ async function runCategory(){
     wheel.style.transform="rotate("+endRotation+"deg)";
     await wait(4400);
     wheelRotation=endRotation;
-    const data=await api("category",{category:selectedCategory});
     game=data.game;
     say("Materia estratta: "+game.category+".");
   }catch(error){
