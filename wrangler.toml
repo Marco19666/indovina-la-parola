@@ -16,5 +16,5 @@ tag = "v1"
 new_sqlite_classes = ["GameSession"]
 
 [vars]
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-3.5-flash-lite"
 # Configura ALLOWED_ORIGIN come secret con l'URL esatto del sito Cloudflare Pages.
