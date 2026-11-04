@@ -47,7 +47,7 @@ async function run(action,button){
     const data=await action();
     game=data.game;
     say(data.message || "");
-  }catch(error){say(error.message)}
+  }catch(error){if(game && !game.phase)game=null;say(error.message)}
   finally{busy=false;render()}
 }
 $("newGame").onclick=()=>run(()=>{game={gameId:crypto.randomUUID()};return api("new")},$("newGame"));
