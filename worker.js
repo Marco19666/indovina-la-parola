@@ -14,7 +14,7 @@ export class GameSession {
   async recharge(s){const now=Date.now(),period=7200000,steps=Math.floor((now-s.lastRecharge)/period);if(steps>0){s.consonants+=steps*3;s.vowels+=steps;s.lastRecharge+=steps*period}}
   async question(s,language){
     if(!this.env.GEMINI_API_KEY)throw new Error("Chiave Gemini non configurata sul Worker");
-    const model=this.env.GEMINI_MODEL||"gemini-2.5-flash";
+    const model=this.env.GEMINI_MODEL||"gemini-3.5-flash-lite";
     const prompt="Crea una domanda quiz originale in "+(LANG[language]||"italiano")+". Categoria: "+s.category+". Difficoltà: "+difficulty(s.round)+". Rispondi SOLO JSON valido con chiavi clue e answer. La risposta deve essere una parola o breve espressione, senza spiegazioni. La domanda deve avere una soluzione univoca.";
     const url="https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent?key="+encodeURIComponent(this.env.GEMINI_API_KEY);
     const r=await fetch(url,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:"application/json",temperature:.8}}),signal:AbortSignal.timeout(20000)});
