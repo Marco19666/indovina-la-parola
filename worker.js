@@ -17,7 +17,7 @@ export class GameSession {
     const model=this.env.GEMINI_MODEL||"gemini-3.5-flash-lite";
     const prompt="Crea una domanda quiz originale in "+(LANG[language]||"italiano")+". Categoria: "+s.category+". Difficoltà: "+difficulty(s.round)+". Rispondi SOLO JSON valido con chiavi clue e answer. La risposta deve essere una parola o breve espressione, senza spiegazioni. La domanda deve avere una soluzione univoca.";
     const url="https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent?key="+encodeURIComponent(this.env.GEMINI_API_KEY);
-    const r=await fetch(url,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:"application/json",temperature:.8}}),signal:AbortSignal.timeout(20000)});
+    const r=await fetch(url,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:"application/json",temperature:.8}}),signal:AbortSignal.timeout(60000)});
     if(!r.ok){const detail=(await r.text()).slice(0,700);throw new Error("Gemini non disponibile ("+r.status+"): "+detail)}
     const j=await r.json(),raw=j.candidates?.[0]?.content?.parts?.[0]?.text;
     const q=JSON.parse(raw||"{}");if(!q.answer||!q.clue)throw new Error("Risposta AI non valida");
