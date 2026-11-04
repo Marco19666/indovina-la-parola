@@ -41,7 +41,7 @@ function renderKeyboard(){
 }
 async function run(fn){if(busy)return;busy=true;try{await fn()}catch(e){say(e.message)}finally{busy=false;render()}}
 async function buy(letter){return run(async()=>{const data=await api("buy",{letter});game=data.game;say(data.message)})}
-$("newGame").onclick=()=>run(async()=>{const data=await api("new");game=data.game;say("Nuova partita iniziata!")});
+$("newGame").onclick=()=>run(async()=>{game={gameId:crypto.randomUUID()};const data=await api("new");game=data.game;say("Nuova partita iniziata!")});
 $("categorySpin").onclick=()=>run(async()=>{const data=await api("category");game=data.game;say(data.message)});
 $("prizeSpin").onclick=()=>run(async()=>{const data=await api("prize");game=data.game;say(data.message)});
 $("buyConsonant").onclick=()=>{const c=[...$("keyboard").querySelectorAll("button")].find(b=>!vowels.includes(b.textContent));if(c)buy(c.textContent)};
