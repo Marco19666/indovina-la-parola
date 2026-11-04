@@ -50,7 +50,7 @@ async function run(action,button){
   }catch(error){say(error.message)}
   finally{busy=false;render()}
 }
-$("newGame").onclick=()=>run(()=>api("new"),$("newGame"));
+$("newGame").onclick=()=>run(()=>{game={gameId:crypto.randomUUID()};return api("new")},$("newGame"));
 $("categorySpin").onclick=()=>run(()=>api("category"),$("categorySpin"));
 $("prizeSpin").onclick=()=>run(()=>api("prize"),$("prizeSpin"));
 $("language").onchange=()=>{if(game)run(()=>api("language"));};
