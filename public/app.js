@@ -37,9 +37,9 @@ function spinAnimation(button){
 function render(){
   const started=!!game;
   $("stats").hidden=!started;
-  $("categoryStage").hidden=!!(game && ["choose_prize","playing","finished"].includes(game.phase));
-  $("questionStage").hidden=!started || !["choose_prize","playing","finished"].includes(game.phase);
-  $("prizeStage").hidden=!started || game.phase!=="choose_prize";
+  $("categoryStage").hidden=!!(game && ["category_selected","choose_prize","playing","finished"].includes(game.phase));
+  $("questionStage").hidden=!started || !["category_selected","choose_prize","playing","finished"].includes(game.phase);
+  $("prizeStage").hidden=true;
   $("resultStage").hidden=!started || !["playing","finished"].includes(game.phase);
   if(!started)return;
   $("round").textContent=game.round;
@@ -47,11 +47,11 @@ function render(){
   $("vowels").textContent=game.vowels;
   $("difficulty").textContent=game.difficulty;
   $("category").textContent=game.category || "In attesa";
-  $("clue").textContent=game.clue || "";
+  $("clue").textContent=game.clue || (game.phase==="category_selected" ? "La domanda non è ancora stata generata." : "");
   $("prizeResult").textContent=game.prizeResult || "";
   if(!started || game.phase==="choose_category") drawCategoryWheel();
   $("categorySpin").disabled=busy || game.phase!=="choose_category";
-  $("prizeSpin").disabled=busy || game.phase!=="choose_prize";
+  $("prizeSpin").disabled=true;
 }
 async function runCategory(){
   if(busy)return;
