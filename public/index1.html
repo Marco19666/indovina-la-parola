@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10172a">
+  <title>Indovina la Parola</title>
+  <link rel="stylesheet" href="style.css?v=ruota4">
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <div><p class="eyebrow">GIOCO A ROUND</p><h1>Indovina la Parola</h1></div>
+      <label class="language">Lingua
+        <select id="language">
+          <option value="it">Italiano</option><option value="en">English</option>
+          <option value="fr">Français</option><option value="es">Español</option>
+          <option value="de">Deutsch</option><option value="pt">Português</option>
+        </select>
+      </label>
+    </header>
+    <section id="stats" class="stats" hidden>
+      <div class="stat"><span>Round</span><strong id="round">1</strong></div>
+      <div class="stat"><span>Consonanti</span><strong id="consonants">10</strong></div>
+      <div class="stat"><span>Vocali</span><strong id="vowels">3</strong></div>
+      <div class="stat"><span>Difficoltà</span><strong id="difficulty">Facile</strong></div>
+    </section>
+    <section id="categoryStage" class="panel stage" hidden>
+      <p class="eyebrow">FASE 1</p>
+      <h2>Ruota delle materie</h2>
+      <p>Gira la ruota per estrarre la categoria della domanda.</p>
+      <div class="wheel-wrap"><div class="wheel-pointer" aria-hidden="true"></div><canvas id="categoryWheel" class="wheel-canvas" width="600" height="600" aria-label="Ruota con dieci materie"></canvas></div>
+      <button id="categorySpin" class="wheel">Gira la ruota delle materie</button>
+    </section>
+    <section id="questionStage" class="panel stage" hidden>
+      <p class="eyebrow">MATERIA ESTRATTA</p>
+      <h2 id="category">Categoria</h2>
+      <p id="clue" class="clue"></p>
+    </section>
+    <section id="prizeStage" class="panel stage" hidden>
+      <p class="eyebrow">FASE 2</p>
+      <h2>Ruota premi e penalità</h2>
+      <p>La domanda è pronta. Gira la seconda ruota per scoprire il tuo premio o handicap.</p>
+      <div class="wheel-art prize-art"><span>★</span></div>
+      <button id="prizeSpin" class="wheel">Gira la ruota dei premi</button>
+    </section>
+    <section id="resultStage" class="panel stage" hidden>
+      <p class="eyebrow">RISULTATO DELLA RUOTA</p>
+      <h2 id="prizeResult"></h2>
+    </section>
+    <p id="message" class="message" aria-live="polite">Pronto a giocare?</p>
+    <footer>Le domande sono generate dall'intelligenza artificiale.</footer>
+  </main>
+  <script src="app.js?v=ruota9"></script>
+</body>
+</html>
